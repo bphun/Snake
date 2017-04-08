@@ -64,7 +64,6 @@ public class SnakePanel extends JPanel {
 						@Override
 						public void actionPerformed(ActionEvent e) {
 							currDirection = letterKeys[0];
-							move();
 						}
 					});					
 					break;
@@ -73,7 +72,6 @@ public class SnakePanel extends JPanel {
 						@Override
 						public void actionPerformed(ActionEvent e) {
 							currDirection = letterKeys[1];
-							move();
 						}
 					});	
 					break;
@@ -82,7 +80,6 @@ public class SnakePanel extends JPanel {
 						@Override
 						public void actionPerformed(ActionEvent e) {
 							currDirection = letterKeys[2];
-							move();
 						}
 					});				
 					break;
@@ -91,11 +88,11 @@ public class SnakePanel extends JPanel {
 						@Override
 						public void actionPerformed(ActionEvent e) {
 							currDirection = letterKeys[3];
-							move();
 						}
 					});					
 					break;
 			}
+			move();
 		}
 		// for (int i = 0; i < arrowKeys.length; i++) {
 		// 	this.getActionMap().put(letterKeys[i], new AbstractAction() {
@@ -141,7 +138,6 @@ public class SnakePanel extends JPanel {
 	}
 
 	public void refresh() {
-
 		repaint();
 	}
 
@@ -169,7 +165,7 @@ public class SnakePanel extends JPanel {
 	private void drawSquares(Graphics2D g2) {
 		for (int r = 0; r < rows; r++) {
 			for (int c = 0; c < cols; c++) {
-				switch (c) {
+				switch (grid[r][c]) {
 					case 1: // Snake part
 						g2.setColor(new Color(56, 142, 60));
 						g2.fillRect(c * SQUARE_SIZE + LINE_THICKNESS, r * SQUARE_SIZE + LINE_THICKNESS, SQUARE_SIZE - LINE_THICKNESS, SQUARE_SIZE - LINE_THICKNESS);
