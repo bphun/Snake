@@ -9,25 +9,29 @@ import javax.swing.KeyStroke;
 import java.awt.Dimension;
 import java.awt.Color;
 import java.awt.RenderingHints;
+import java.util.List;
+import java.util.ArrayList;
+import javax.swing.JComponent;
 
 public class SnakePanel extends JPanel {
 
 	private Snake snake;
 
 	private static final Dimension PANEL_DIMENSIONS = new Dimension(1650, 1000);
-	private static final int SQUARE_SIZE = 30;
+	private static final int SQUARE_SIZE = 25;
 	private static final int LINE_THICKNESS = 1;
 
 	private int rows;
 	private int cols;
 	private int currDirection; 
-	private int[][] grid;
 
-	public SnakePanel(Snake snake, int rows, int cols, int[][] grid) {
+	private Coordinate foodLoc;
+	private List<Coordinate> snakeParts;
+
+	public SnakePanel(Snake snake, int rows, int cols) {
 		this.snake = snake;
 		this.rows = rows;
 		this.cols = cols;
-		this.grid = grid;
 
 		this.setPreferredSize(PANEL_DIMENSIONS);
 		this.setBackground(new Color(33, 33, 33));
@@ -36,7 +40,7 @@ public class SnakePanel extends JPanel {
 
 	private void setUpKeyMappings() {
 		this.requestFocusInWindow();
-
+		// this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
 		int[] arrowKeys = {KeyEvent.VK_UP, KeyEvent.VK_RIGHT, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT};
 		char[] letterKeys = {'w', 'd', 's', 'a'};
 
@@ -133,12 +137,20 @@ public class SnakePanel extends JPanel {
 				snake.right();
 				break;
 		}
-
+		snakeParts = snake.getSnake();
 		repaint();
 	}
 
 	public void refresh() {
 		repaint();
+	}
+
+	public void setSnake(List<Coordinate> snakeParts) {
+		this.snakeParts = snakeParts;
+	}
+
+	public void setFoodLoc(Coordinate foodLoc) {
+		this.foodLoc = foodLoc;
 	}
 
 	@Override
@@ -163,21 +175,16 @@ public class SnakePanel extends JPanel {
 	}
 
 	private void drawSquares(Graphics2D g2) {
-		for (int r = 0; r < rows; r++) {
-			for (int c = 0; c < cols; c++) {
-				switch (grid[r][c]) {
-					case 1: // Snake part
-						g2.setColor(new Color(56, 142, 60));
-						g2.fillRect(c * SQUARE_SIZE + LINE_THICKNESS, r * SQUARE_SIZE + LINE_THICKNESS, SQUARE_SIZE - LINE_THICKNESS, SQUARE_SIZE - LINE_THICKNESS);
-						g2.setColor(Color.BLACK);		
-						break;
-					case 2: // Food
-						g2.setColor(new Color(255, 152, 0));
-						g2.fillRect(c * SQUARE_SIZE + LINE_THICKNESS, r * SQUARE_SIZE + LINE_THICKNESS, SQUARE_SIZE - LINE_THICKNESS, SQUARE_SIZE - LINE_THICKNESS);	
-						break;
-				}
-			}
+		if (snakeParts == null) { return; }
+		for (Coordinate c : snakeParts) {
+			g2.setColor(new Color(56, 142, 60));
+			g2.fillRect(c.col() * SQUARE_SIZE + LINE_THICKNESS, c.row() * SQUARE_SIZE + LINE_THICKNESS, SQUARE_SIZE - LINE_THICKNESS, SQUARE_SIZE - LINE_THICKNESS);
+			g2.setColor(Color.BLACK);		
 		}
+		g2.setColor(new Color(255, 152, 0));
+		g2.fillRect(foodLoc.col() * SQUARE_SIZE + LINE_THICKNESS, foodLoc.row() * SQUARE_SIZE + LINE_THICKNESS, SQUARE_SIZE - LINE_THICKNESS, SQUARE_SIZE - LINE_THICKNESS);	
+
+		
 	}
 
 }
