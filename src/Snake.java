@@ -15,11 +15,6 @@ public class Snake {
 	private int[][] grid;
 	private int snakeLength;
 
-	private Coordinate foodLoc;
-
-	private LinkedList<Coordinate> snakeCoords;
-	private TreeMap<Integer, Integer> snakeCoords;
-
 	public static void main(String[] args) {
 		new Snake().start();
 	}
