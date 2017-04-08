@@ -2,26 +2,26 @@ import javax.swing.JFrame;
 import javax.swing.Timer;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
+import java.util.List;
+import java.util.ArrayList;
 public class Snake {
 
 	private SnakePanel panel;
 	private JFrame frame;
 	private Timer t;
 
-	private static int ROWS = 31;
-	private static int COLS = 55;
+	private static final int ROWS = 37;
+	private static final int COLS = 66;
 
-	private int[][] grid;
-	private int snakeLength;
+	private Coordinate foodLoc;
+	private List<Coordinate> snakeParts;
 
 	public static void main(String[] args) {
 		new Snake().start();
 	}
 
 	private void start() {
-		grid = new int[ROWS][COLS];
-		panel = new SnakePanel(this, ROWS, COLS, grid);
+		panel = new SnakePanel(this, ROWS, COLS);
 		frame = new JFrame("Snake");
 		frame.add(panel);
 		frame.pack();
@@ -41,9 +41,39 @@ public class Snake {
 		t.start();
 	}
 
+	public void printGrid() {
+		System.out.println("Snake Length: " + snakeParts.size());
+		int[][] grid = new int[ROWS][COLS];
+
+		for (Coordinate c : snakeParts) {
+			System.out.println(c.toString());
+			grid[c.row()][c.col()] = 1;
+		}
+		grid[foodLoc.row()][foodLoc.col()] = 2;
+
+		for (int r = 0; r < ROWS; r++) {
+			for (int c = 0; c < COLS; c++) {
+				switch (grid[r][c]) {
+					case 0:
+						System.out.print(".");
+						break;
+					case 1:
+						System.out.print("~");
+						break;
+					case 2:
+						System.out.print("*");
+						break;
+				}
+			}
+			System.out.println();
+		}
+		System.out.println();
+	}
+
 	private void initSnake() {
+		snakeParts = new ArrayList<>();
 		int row = (int)(Math.random() * ROWS - 2);
-		int col = (int)(Math.random() * COLS - 2);
+		int col = (int)(Math.random() * COLS);
 		int length = (int)(Math.random() * 5);
 		if (length <= 1) { length += 2; }
 		if (col + length > COLS) { 
@@ -52,33 +82,19 @@ public class Snake {
 			}
 		}
 
-		for (int c = col; c <= col + length; c++) {
-			grid[row][c] = 1;
+		for (int i = length; i >= 0; i--) {
+			snakeParts.add(new Coordinate(row, col++));
 		}
-		snakeLength = length;
+
+		panel.setSnake(snakeParts);
+		for (Coordinate c : snakeParts) {
+			System.out.println(c.toString());
+		}
 	}
 
 	private void putFood() {
-		int row = (int)(Math.random() * ROWS);
-		int col = (int)(Math.random() * COLS);
-		grid[row][col] = 2;
-	}
-
-	private void printGrid() {
-		for (int[] r : grid) {
-			for (int c : r) {
-				switch (c) {
-					case 1:
-						System.out.print("~");
-					case 2:
-						System.out.print("*");
-					case 0:
-						System.out.print(".");
-				}
-			}
-			System.out.println();
-		}
-		System.out.println();
+		foodLoc = new Coordinate((int)(Math.random() * ROWS), (int)(Math.random() * COLS));
+		panel.setFoodLoc(foodLoc);
 	}
 
 	private boolean hitWall(int row, int col) {
@@ -89,19 +105,13 @@ public class Snake {
 
 	}
 
+	public List<Coordinate> getSnake() {
+		return this.snakeParts;
+	}
+
+	
 	public void up() {
 		System.out.println("Up");
-		for (int r = 0; r < ROWS; r++) {
-			for (int c = 0; c < COLS; c++) {
-				if (!hitWall()) {
-					if (grid[r][c] == 1) {
-						//	Use linked list of Locations to store coordinates of each square of snake, remove grid array and create local variable that contains the location of the food item
-					}
-				} else {
-					die();
-				}
-			}
-		}
 	}
 
 	public void right() {
