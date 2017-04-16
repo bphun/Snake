@@ -114,11 +114,10 @@ public class Snake {
 	}
 
 	public void up() {
-		Coordinate prev = null;
+		Coordinate prev = snakeParts.get(0);
 		for (int i = 0; i < snakeParts.size(); i++) {
 			switch (i) {
 				case 0:
-					prev = snakeParts.get(0);
 					snakeParts.get(i).decrementRow();
 					break;
 				default:
