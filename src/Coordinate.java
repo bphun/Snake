@@ -38,4 +38,11 @@ public class Coordinate {
 	public String toString() {
 		return "Row: " + row + " Col: " + col;
 	}
+  
+	@Override 
+	public boolean equals(Object o) {
+		Coordinate c = (Coordinate)o;
+		return ((this.row == c.row) && (this.col == c.col));
+	}
+
 }
