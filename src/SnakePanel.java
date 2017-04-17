@@ -12,6 +12,9 @@ import java.awt.RenderingHints;
 import java.util.List;
 import java.util.ArrayList;
 import javax.swing.JComponent;
+import java.awt.Font;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 public class SnakePanel extends JPanel {
 
@@ -24,9 +27,11 @@ public class SnakePanel extends JPanel {
 	private int rows;
 	private int cols;
 	private int currDirection; 
+	private boolean snakeDidDie;
 
 	private Coordinate foodLoc;
 	private List<Coordinate> snakeParts;
+	// private Coordinate[] snakeParts;
 
 	public SnakePanel(Snake snake, int rows, int cols) {
 		this.snake = snake;
@@ -38,9 +43,34 @@ public class SnakePanel extends JPanel {
 		this.setUpKeyMappings();
 	}
 
+	private void setUpClickListener() {
+		this.requestFocusInWindow();
+
+		this.addMouseListener(new MouseListener() {
+			
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+			}
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+			}
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+			}
+			@Override
+			public void mousePressed(MouseEvent click) {
+				snake.restart();
+				setUpKeyMappings();
+				snakeDidDie = false;
+			}
+			@Override
+			public void mouseReleased(MouseEvent arg0) {
+			}
+		});
+	}
+
 	private void setUpKeyMappings() {
 		this.requestFocusInWindow();
-		// this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
 		int[] arrowKeys = {KeyEvent.VK_UP, KeyEvent.VK_RIGHT, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT};
 		char[] letterKeys = {'w', 'd', 's', 'a'};
 
@@ -98,14 +128,6 @@ public class SnakePanel extends JPanel {
 			}
 			move();
 		}
-		// for (int i = 0; i < arrowKeys.length; i++) {
-		// 	this.getActionMap().put(letterKeys[i], new AbstractAction() {
-		// 		@Override
-		// 		public void actionPerformed(ActionEvent e) {
-		// 			currDirection = i;
-		// 		}
-		// 	});
-		// }
 
 		// Set up mappings for WASD keys
 		for (char key : letterKeys) {
@@ -123,22 +145,27 @@ public class SnakePanel extends JPanel {
 	}
 
 	private void move() {
+		if (snakeDidDie) { return; }
 		switch(currDirection) {
 			case 'w':
-				snake.up();
+				snake.setDirection(0);
 				break;
 			case 'a':
-				snake.left();
+				snake.setDirection(3);
 				break;
 			case 's':
-				snake.down();
+				snake.setDirection(2);
 				break;
 			case 'd':
-				snake.right();
+				snake.setDirection(1);
 				break;
 		}
 		snakeParts = snake.getSnake();
 		repaint();
+	}
+
+	public void snakeDidDie() {
+		snakeDidDie = true;
 	}
 
 	public void refresh() {
@@ -160,6 +187,12 @@ public class SnakePanel extends JPanel {
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		drawGrid(g2);
 		drawSquares(g2);
+		if (snakeDidDie) {
+			g2.setColor(Color.WHITE);
+			g2.setFont(new Font("AvenirNext", Font.PLAIN, 30));
+			g2.drawString("You Died. Click to restart.", PANEL_DIMENSIONS.width / 2, PANEL_DIMENSIONS.height / 2);
+			setUpClickListener();
+		}
 	}
 
 	private void drawGrid(Graphics2D g2) {
@@ -175,16 +208,14 @@ public class SnakePanel extends JPanel {
 	}
 
 	private void drawSquares(Graphics2D g2) {
-		if (snakeParts == null) { return; }
+		if (snakeParts.size() == 0 || snakeParts == null) { return; }
 		for (Coordinate c : snakeParts) {
 			g2.setColor(new Color(56, 142, 60));
 			g2.fillRect(c.col() * SQUARE_SIZE + LINE_THICKNESS, c.row() * SQUARE_SIZE + LINE_THICKNESS, SQUARE_SIZE - LINE_THICKNESS, SQUARE_SIZE - LINE_THICKNESS);
 			g2.setColor(Color.BLACK);		
 		}
 		g2.setColor(new Color(255, 152, 0));
-		g2.fillRect(foodLoc.col() * SQUARE_SIZE + LINE_THICKNESS, foodLoc.row() * SQUARE_SIZE + LINE_THICKNESS, SQUARE_SIZE - LINE_THICKNESS, SQUARE_SIZE - LINE_THICKNESS);	
-
-		
+		g2.fillRect(foodLoc.col() * SQUARE_SIZE + LINE_THICKNESS, foodLoc.row() * SQUARE_SIZE + LINE_THICKNESS, SQUARE_SIZE - LINE_THICKNESS, SQUARE_SIZE - LINE_THICKNESS);		
 	}
 
 }
