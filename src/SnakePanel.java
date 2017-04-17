@@ -31,7 +31,9 @@ public class SnakePanel extends JPanel {
 
 	private Coordinate foodLoc;
 	private List<Coordinate> snakeParts;
-	// private Coordinate[] snakeParts;
+
+	private Coordinate foodLoc;
+	private List<Coordinate> snakeParts;
 
 	public SnakePanel(Snake snake, int rows, int cols) {
 		this.snake = snake;
@@ -43,7 +45,7 @@ public class SnakePanel extends JPanel {
 		this.setUpKeyMappings();
 	}
 
-	private void setUpClickListener() {
+  private void setUpClickListener() {
 		this.requestFocusInWindow();
 
 		this.addMouseListener(new MouseListener() {
@@ -71,6 +73,7 @@ public class SnakePanel extends JPanel {
 
 	private void setUpKeyMappings() {
 		this.requestFocusInWindow();
+    
 		int[] arrowKeys = {KeyEvent.VK_UP, KeyEvent.VK_RIGHT, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT};
 		char[] letterKeys = {'w', 'd', 's', 'a'};
 
@@ -128,7 +131,7 @@ public class SnakePanel extends JPanel {
 			}
 			move();
 		}
-
+    
 		// Set up mappings for WASD keys
 		for (char key : letterKeys) {
 			this.getInputMap().put(KeyStroke.getKeyStroke(key), key);
@@ -158,6 +161,7 @@ public class SnakePanel extends JPanel {
 				break;
 			case 'd':
 				snake.setDirection(1);
+
 				break;
 		}
 		snakeParts = snake.getSnake();
@@ -193,6 +197,7 @@ public class SnakePanel extends JPanel {
 			g2.drawString("You Died. Click to restart.", PANEL_DIMENSIONS.width / 2, PANEL_DIMENSIONS.height / 2);
 			setUpClickListener();
 		}
+
 	}
 
 	private void drawGrid(Graphics2D g2) {
@@ -209,6 +214,7 @@ public class SnakePanel extends JPanel {
 
 	private void drawSquares(Graphics2D g2) {
 		if (snakeParts.size() == 0 || snakeParts == null) { return; }
+
 		for (Coordinate c : snakeParts) {
 			g2.setColor(new Color(56, 142, 60));
 			g2.fillRect(c.col() * SQUARE_SIZE + LINE_THICKNESS, c.row() * SQUARE_SIZE + LINE_THICKNESS, SQUARE_SIZE - LINE_THICKNESS, SQUARE_SIZE - LINE_THICKNESS);
@@ -217,5 +223,4 @@ public class SnakePanel extends JPanel {
 		g2.setColor(new Color(255, 152, 0));
 		g2.fillRect(foodLoc.col() * SQUARE_SIZE + LINE_THICKNESS, foodLoc.row() * SQUARE_SIZE + LINE_THICKNESS, SQUARE_SIZE - LINE_THICKNESS, SQUARE_SIZE - LINE_THICKNESS);		
 	}
-
 }

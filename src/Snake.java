@@ -15,6 +15,7 @@ public class Snake {
 	private static final int COLS = 66;
 
 	private int currDirection;
+
 	private Coordinate foodLoc;
 	private List<Coordinate> snakeParts;
 
@@ -32,14 +33,14 @@ public class Snake {
 		initSnake();
 		putFood();
 		startTimer();
-	}
+  }
 
 	private void startTimer() {
-		t = new Timer(400, new ActionListener() {
+		t = new Timer(11, new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				move();
 				panel.refresh();
+        move();
 			}
 		});
 		t.start();
@@ -47,9 +48,8 @@ public class Snake {
 
 	private void initSnake() {
 		snakeParts = new ArrayList<>();
-		currDirection = 3;
 		int row = (int)(Math.random() * ROWS - 2);
-		int col = (int)(Math.random() * COLS - 2);
+		int col = (int)(Math.random() * COLS);
 		int length = (int)(Math.random() * 5);
 		if (length <= 1) { length += 2; }
 		if (col + length > COLS) { 
@@ -57,7 +57,8 @@ public class Snake {
 				length--;
 			}
 		}
-		for (int i = 0; i < length; i++) {
+
+		for (int i = length; i >= 0; i--) {
 			snakeParts.add(new Coordinate(row, col++));
 		}
 
@@ -139,8 +140,8 @@ public class Snake {
 		initSnake();
 		putFood();
 		currDirection = 3;
-	}
-
+  }
+    
 	public List<Coordinate> getSnake() {
 		return this.snakeParts;
 	}
@@ -213,5 +214,3 @@ public class Snake {
 		System.out.println();
 	}
 }
-
-
