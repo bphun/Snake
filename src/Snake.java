@@ -14,7 +14,7 @@ public class Snake {
 	private static final int ROWS = 37;
 	private static final int COLS = 66;
 
-	private int currDirection;
+	private Direction currDirection;
 	private Coordinate foodLoc;
 	private List<Coordinate> snakeParts;
 
@@ -35,10 +35,15 @@ public class Snake {
 	}
 
 	private void startTimer() {
-		t = new Timer(400, new ActionListener() {
+		t = new Timer(100, new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+	
 				move();
+				checkEatFood();
+				checkHitWall();
+				checkHitSelf();
+
 				panel.refresh();
 			}
 		});
@@ -47,7 +52,7 @@ public class Snake {
 
 	private void initSnake() {
 		snakeParts = new ArrayList<>();
-		currDirection = 3;
+		currDirection = Direction.LEFT;
 		int row = (int)(Math.random() * ROWS - 2);
 		int col = (int)(Math.random() * COLS - 2);
 		int length = (int)(Math.random() * 5);
@@ -62,9 +67,7 @@ public class Snake {
 		}
 
 		panel.setSnake(snakeParts);
-		for (Coordinate c : snakeParts) {
-			System.out.println(c.toString());
-		}
+		System.out.println("Init Snake: Length = " + length + " startCoord = " + "(" + snakeParts.get(0).toString() + ")");
 	}
 
 	private void putFood() {
@@ -82,43 +85,44 @@ public class Snake {
 			Coordinate snakePart = null;
 			Coordinate last = snakeParts.get(snakeParts.size() - 1);
 			switch (currDirection) {
-				case 0:
+				case UP:
 					snakePart = new Coordinate(last.row() - 1, last.col());
 					break;
-				case 1:
+				case RIGHT:
 					snakePart = new Coordinate(last.row(), last.col() + 1);
 					break;
-				case 2:
+				case DOWN:
 					snakePart = new Coordinate(last.row() + 1, last.col());
 					break;
-				case 3:
+				case LEFT:
 					snakePart = new Coordinate(last.row(), last.col() - 1);
 					break;
 			}
 			snakeParts.add(snakePart);
+			panel.ateFood();
 		}
 	}
 
 	private void checkHitWall() {
 		Coordinate snakeHead = snakeParts.get(0);
 		switch (currDirection) {
-			case 0:
-				if (snakeHead.row() == 0) {
+			case UP:
+				if (snakeHead.row() <= 0) {
 					panel.snakeDidDie();
 				}
 				break;
-			case 1:
+			case RIGHT:
 				if (snakeHead.col() == COLS) {
 					panel.snakeDidDie();
 				}
 				break;
-			case 2:
+			case DOWN:
 				if (snakeHead.row() == ROWS) {
 					panel.snakeDidDie();
 				}
 				break;
-			case 3:
-				if (snakeHead.col() == 0) {
+			case LEFT:
+				if (snakeHead.col() <= 0) {
 					panel.snakeDidDie();
 				}
 				break;
@@ -127,60 +131,57 @@ public class Snake {
 
 	private void checkHitSelf() {
 		Coordinate snakeHead = snakeParts.get(0);
-		for (Coordinate c : snakeParts) {
-			if (snakeHead.equals(c)) {
+		for (int i = 1; i < snakeParts.size(); i++) {
+			if (snakeParts.get(i).equals(snakeHead)) {
 				panel.snakeDidDie();
 				return;
 			}
+
 		}
 	}
 
 	public void restart() {
 		initSnake();
 		putFood();
-		currDirection = 3;
+		currDirection = Direction.LEFT;
 	}
 
 	public List<Coordinate> getSnake() {
 		return this.snakeParts;
 	}
 
-	public void setDirection(int dir) {
+	public void setDirection(Direction dir) {
 		this.currDirection = dir;
 	}
 
-	public int direction() {
+	public Direction direction() {
 		return this.currDirection;
 	}
 
 	public void move() {
 		if (snakeParts == null) { return; }
-		for (int i = snakeParts.size() - 1; i > 0; i--) {
-			snakeParts.set(i,  snakeParts.get(i - 1));
+
+		Coordinate prev = new Coordinate(snakeParts.get(0).row(), snakeParts.get(0).col());
+		for (int i = 1; i < snakeParts.size(); i++) {
+			Coordinate tmp = new Coordinate(snakeParts.get(i).row(), snakeParts.get(i).col());
+			snakeParts.set(i, prev);
+			prev = tmp;
 		}
+
 		switch (currDirection) {
-			case 0:
+			case UP:
 				snakeParts.get(0).decrementRow();
 				break;
-			case 1:
+			case RIGHT:
 				snakeParts.get(0).incrementCol();
 				break;
-			case 2:
+			case DOWN:
 				snakeParts.get(0).incrementRow();
 				break;
-			case 3:
+			case LEFT:
 				snakeParts.get(0).decrementCol();
 				break;
 		}
-
-		checkEatFood();
-		checkHitWall();
-		// checkHitSelf();
-		// printGrid();
-		for (Coordinate c : snakeParts) {
-			System.out.println(c.toString());
-		}	
-		System.out.println();
 	}
 
 

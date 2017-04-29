@@ -42,7 +42,9 @@ public class Coordinate {
 	@Override 
 	public boolean equals(Object o) {
 		Coordinate c = (Coordinate)o;
-		return ((this.row == c.row) && (this.col == c.col));
+		
+		if ((this.row == c.row) && this.col == c.col) { return true;}
+		return false; 
 	}
 
 }

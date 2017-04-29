@@ -20,14 +20,15 @@ public class SnakePanel extends JPanel {
 
 	private Snake snake;
 
-	private static final Dimension PANEL_DIMENSIONS = new Dimension(1650, 1000);
 	private static final int SQUARE_SIZE = 25;
 	private static final int LINE_THICKNESS = 1;
+	private static final Dimension PANEL_DIMENSIONS = new Dimension(1650, 1000);
 
+	private boolean snakeDidDie;
 	private int rows;
 	private int cols;
-	private int currDirection; 
-	private boolean snakeDidDie;
+	private int points;
+	private Direction currDirection; 
 
 	private Coordinate foodLoc;
 	private List<Coordinate> snakeParts;
@@ -37,6 +38,8 @@ public class SnakePanel extends JPanel {
 		this.snake = snake;
 		this.rows = rows;
 		this.cols = cols;
+		this.snakeDidDie = false;
+		this.currDirection = Direction.LEFT;
 
 		this.setPreferredSize(PANEL_DIMENSIONS);
 		this.setBackground(new Color(33, 33, 33));
@@ -71,101 +74,81 @@ public class SnakePanel extends JPanel {
 
 	private void setUpKeyMappings() {
 		this.requestFocusInWindow();
-		int[] arrowKeys = {KeyEvent.VK_UP, KeyEvent.VK_RIGHT, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT};
+		// int[] arrowKeys = {KeyEvent.VK_UP, KeyEvent.VK_RIGHT, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT};
 		char[] letterKeys = {'w', 'd', 's', 'a'};
-
-		// Set up mappings for the keyboard arrow keys
-		for (int key : arrowKeys) {
-			switch (key) {
-				case KeyEvent.VK_UP:
-					this.getInputMap().put(KeyStroke.getKeyStroke(key, 0, false),letterKeys[0]);
-					break;
-				case KeyEvent.VK_RIGHT:
-					this.getInputMap().put(KeyStroke.getKeyStroke(key, 0, false),letterKeys[1]);
-					break;
-				case KeyEvent.VK_DOWN:
-					this.getInputMap().put(KeyStroke.getKeyStroke(key, 0, false),letterKeys[2]);
-					break;
-				case KeyEvent.VK_LEFT:
-					this.getInputMap().put(KeyStroke.getKeyStroke(key, 0, false),letterKeys[3]);
-					break;
-			}
-		}
-		for (int key : arrowKeys) {
-			switch (key) {
-				case KeyEvent.VK_UP:
-					this.getActionMap().put(letterKeys[0], new AbstractAction() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							currDirection = letterKeys[0];
-						}
-					});					
-					break;
-				case KeyEvent.VK_RIGHT:
-					this.getActionMap().put(letterKeys[1], new AbstractAction() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							currDirection = letterKeys[1];
-						}
-					});	
-					break;
-				case KeyEvent.VK_DOWN:
-					this.getActionMap().put(letterKeys[2], new AbstractAction() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							currDirection = letterKeys[2];
-						}
-					});				
-					break;
-				case KeyEvent.VK_LEFT:
-					this.getActionMap().put(letterKeys[3], new AbstractAction() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							currDirection = letterKeys[3];
-						}
-					});					
-					break;
-			}
-			move();
-		}
+		// Direction[] directions = {Direction.UP, Direction.RIGHT ,Direction.DOWN , Direction.LEFT};
 
 		// Set up mappings for WASD keys
 		for (char key : letterKeys) {
 			this.getInputMap().put(KeyStroke.getKeyStroke(key), key);
 		}
-		for (char key : letterKeys) {
-			this.getActionMap().put(key, new AbstractAction(){
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					currDirection = key;
+		this.getActionMap().put('w', new AbstractAction(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(!currDirection.equals(Direction.DOWN)){
+					currDirection = Direction.UP;
 					move();
 				}
-			});	
-		}
+			}
+
+		});
+		this.getActionMap().put('a', new AbstractAction(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(!currDirection.equals(Direction.RIGHT)){
+					currDirection = Direction.LEFT;
+					move();
+				}
+			}
+		});
+		this.getActionMap().put('s', new AbstractAction(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(!currDirection.equals(Direction.UP)){
+					currDirection = Direction.DOWN;
+					move();
+				}
+			}
+
+		});
+		this.getActionMap().put('d', new AbstractAction(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(!currDirection.equals(Direction.LEFT)){
+					currDirection = Direction.RIGHT;
+					move();
+				}
+			}
+		});
 	}
 
 	private void move() {
 		if (snakeDidDie) { return; }
 		switch(currDirection) {
-			case 'w':
-				snake.setDirection(0);
+			case UP:
+				snake.setDirection(Direction.UP);
 				break;
-			case 'a':
-				snake.setDirection(3);
+			case RIGHT:
+				snake.setDirection(Direction.RIGHT);
 				break;
-			case 's':
-				snake.setDirection(2);
+			case DOWN:
+				snake.setDirection(Direction.DOWN);
 				break;
-			case 'd':
-				snake.setDirection(1);
+			case LEFT:
+				snake.setDirection(Direction.LEFT);
 				break;
 		}
 		snakeParts = snake.getSnake();
 		repaint();
 	}
 
+	public void ateFood() {
+		points += 5;
+	}
+
 	public void snakeDidDie() {
 		snakeDidDie = true;
+		repaint();
 	}
 
 	public void refresh() {
@@ -185,14 +168,23 @@ public class SnakePanel extends JPanel {
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D)g;
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		drawGrid(g2);
+		drawPoints(g2);
+		// drawGrid(g2);
 		drawSquares(g2);
 		if (snakeDidDie) {
 			g2.setColor(Color.WHITE);
 			g2.setFont(new Font("AvenirNext", Font.PLAIN, 30));
-			g2.drawString("You Died. Click to restart.", PANEL_DIMENSIONS.width / 2, PANEL_DIMENSIONS.height / 2);
+			g2.drawString("You Died... click to restart", PANEL_DIMENSIONS.width / 2, PANEL_DIMENSIONS.height / 2);
 			setUpClickListener();
 		}
+	}
+
+	private void drawPoints(Graphics2D g2) {
+		g2.setFont(new Font("AvenirNext", Font.PLAIN, 20));
+		g2.setColor(Color.WHITE);
+		g2.drawString("Points: " + points, PANEL_DIMENSIONS.width - 250, 30);
+		g2.setColor(Color.BLACK);
+
 	}
 
 	private void drawGrid(Graphics2D g2) {
