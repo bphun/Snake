@@ -18,32 +18,34 @@ import java.awt.event.MouseListener;
 
 public class SnakePanel extends JPanel {
 
-	private Snake snake;
-
 	private static final int SQUARE_SIZE = 25;
 	private static final int LINE_THICKNESS = 1;
-	private static final Dimension PANEL_DIMENSIONS = new Dimension(1650, 1000);
 
-	private boolean snakeDidDie;
 	private int rows;
 	private int cols;
+	private boolean mouseListenerActive;
+	private Dimension panelDimension;
+
 	private int points;
+	private Snake snake;
+	private boolean snakeDidDie;
 	private Direction currDirection; 
 
 	private Coordinate foodLoc;
 	private List<Coordinate> snakeParts;
-	// private Coordinate[] snakeParts;
 
-	public SnakePanel(Snake snake, int rows, int cols) {
+	public SnakePanel(Snake snake, int rows, int cols, Dimension dim) {
 		this.snake = snake;
 		this.rows = rows;
 		this.cols = cols;
+		this.panelDimension = dim;
 		this.snakeDidDie = false;
 		this.currDirection = Direction.LEFT;
 
-		this.setPreferredSize(PANEL_DIMENSIONS);
+		this.setPreferredSize(panelDimension);
 		this.setBackground(new Color(33, 33, 33));
 		this.setUpKeyMappings();
+		this.setUpClickListener();
 	}
 
 	private void setUpClickListener() {
@@ -62,9 +64,11 @@ public class SnakePanel extends JPanel {
 			}
 			@Override
 			public void mousePressed(MouseEvent click) {
+				if (!mouseListenerActive) { return; }
 				snake.restart();
 				setUpKeyMappings();
 				snakeDidDie = false;
+				mouseListenerActive = false;
 			}
 			@Override
 			public void mouseReleased(MouseEvent arg0) {
@@ -148,6 +152,7 @@ public class SnakePanel extends JPanel {
 
 	public void snakeDidDie() {
 		snakeDidDie = true;
+		mouseListenerActive = true;
 		repaint();
 	}
 
@@ -163,6 +168,12 @@ public class SnakePanel extends JPanel {
 		this.foodLoc = foodLoc;
 	}
 
+	public void updateScreenDim(int rows, int cols, Dimension dim) {
+		this.rows = rows;
+		this.cols = cols;
+		this.panelDimension = dim;
+	}
+
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
@@ -174,15 +185,14 @@ public class SnakePanel extends JPanel {
 		if (snakeDidDie) {
 			g2.setColor(Color.WHITE);
 			g2.setFont(new Font("AvenirNext", Font.PLAIN, 30));
-			g2.drawString("You Died... click to restart", PANEL_DIMENSIONS.width / 2, PANEL_DIMENSIONS.height / 2);
-			setUpClickListener();
+			g2.drawString("You Died... click to restart", panelDimension.width / 2, panelDimension.height / 2);
 		}
 	}
 
 	private void drawPoints(Graphics2D g2) {
 		g2.setFont(new Font("AvenirNext", Font.PLAIN, 20));
 		g2.setColor(Color.WHITE);
-		g2.drawString("Points: " + points, PANEL_DIMENSIONS.width - 250, 30);
+		g2.drawString("Points: " + points, panelDimension.width - 250, 30);
 		g2.setColor(Color.BLACK);
 
 	}
@@ -192,10 +202,10 @@ public class SnakePanel extends JPanel {
 		for (int r = 0; r < rows; r++) {
 			for (int c = 0; c < cols; c++) {
 				//	Draws the vertical line
-				g2.drawLine(SQUARE_SIZE * c, 0, SQUARE_SIZE * c, (PANEL_DIMENSIONS.height));
+				g2.drawLine(SQUARE_SIZE * c, 0, SQUARE_SIZE * c, (panelDimension.height));
 			}
 			//	Draws the horizontal line
-			g2.drawLine(0, (SQUARE_SIZE * r), PANEL_DIMENSIONS.width, (SQUARE_SIZE * r)); 
+			g2.drawLine(0, (SQUARE_SIZE * r), panelDimension.width, (SQUARE_SIZE * r)); 
 		}
 	}
 
