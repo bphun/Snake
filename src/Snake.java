@@ -4,6 +4,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 import java.util.ArrayList;
+import java.awt.Toolkit;
+import java.awt.Dimension;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 public class Snake {
 
@@ -11,11 +15,12 @@ public class Snake {
 	private JFrame frame;
 	private Timer t;
 
-	private static final int ROWS = 37;
-	private static final int COLS = 66;
+	private Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
+	private int rows = (screenDim.height / 25) - 2;
+	private int cols = screenDim.width / 25;
 
-	private Direction currDirection;
 	private Coordinate foodLoc;
+	private Direction currDirection;
 	private List<Coordinate> snakeParts;
 
 	public static void main(String[] args) {
@@ -23,12 +28,22 @@ public class Snake {
 	}
 
 	private void start() {
-		panel = new SnakePanel(this, ROWS, COLS);
+		panel = new SnakePanel(this, rows, cols, screenDim);
 		frame = new JFrame("Snake");
 		frame.add(panel);
 		frame.pack();
 		frame.setVisible(true);
+		// frame.addComponentListener(new ComponentAdapter() {
+		// 	@Override
+		// 	public void componentResized(ComponentEvent e) {
+		// 		screenDim = Toolkit.getDefaultToolkit().getScreenSize();
+		// 		rows = (screenDim.height / 25) - 2;
+		// 	 	cols = screenDim.width / 25;
+		// 	 	panel.updateScreenDim(rows, cols, screenDim);
+		// 	}
+		// });
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
 		initSnake();
 		putFood();
 		startTimer();
@@ -38,12 +53,10 @@ public class Snake {
 		t = new Timer(100, new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-	
-				move();
 				checkEatFood();
+				move();
 				checkHitWall();
 				checkHitSelf();
-
 				panel.refresh();
 			}
 		});
@@ -53,13 +66,17 @@ public class Snake {
 	private void initSnake() {
 		snakeParts = new ArrayList<>();
 		currDirection = Direction.LEFT;
-		int row = (int)(Math.random() * ROWS - 2);
-		int col = (int)(Math.random() * COLS - 2);
+		int row = (int)(Math.random() * rows - 2);
+		int col = (int)(Math.random() * cols - 2);
 		int length = (int)(Math.random() * 5);
 		if (length <= 1) { length += 2; }
-		if (col + length > COLS) { 
-			while (col + length > COLS) {
-				length--;
+		if (col + length >= cols) { 
+			while (col + length > cols) {
+				col--;;
+			}
+		} else if (col + length <= 10) {
+			while (col + length < 10) {
+				col++;
 			}
 		}
 		for (int i = 0; i < length; i++) {
@@ -71,12 +88,12 @@ public class Snake {
 	}
 
 	private void putFood() {
-		foodLoc = new Coordinate((int)(Math.random() * ROWS), (int)(Math.random() * COLS));
+		foodLoc = new Coordinate((int)(Math.random() * (rows - 5)), (int)(Math.random() * (cols - 5)));
 		panel.setFoodLoc(foodLoc);
 	}
 
 	private boolean hitWall(int row, int col) {
-		return ((row < ROWS && row > 0) && (col < COLS && col > 0));
+		return ((row < rows && row > 0) && (col < cols && col > 0));
 	}
 
 	private void checkEatFood() {
@@ -112,12 +129,12 @@ public class Snake {
 				}
 				break;
 			case RIGHT:
-				if (snakeHead.col() == COLS) {
+				if (snakeHead.col() == cols) {
 					panel.snakeDidDie();
 				}
 				break;
 			case DOWN:
-				if (snakeHead.row() == ROWS) {
+				if (snakeHead.row() == rows) {
 					panel.snakeDidDie();
 				}
 				break;
@@ -136,7 +153,6 @@ public class Snake {
 				panel.snakeDidDie();
 				return;
 			}
-
 		}
 	}
 
@@ -188,15 +204,15 @@ public class Snake {
 	public void printGrid() {
 		System.out.println("Snake Length: " + snakeParts.size());
 		if (snakeParts == null) { return; }
-		int[][] grid = new int[ROWS][COLS];
+		int[][] grid = new int[rows][cols];
 
 		for (Coordinate c : snakeParts) {
 			grid[c.row()][c.col()] = 1;
 		}
 		grid[foodLoc.row()][foodLoc.col()] = 2;
 
-		for (int r = 0; r < ROWS; r++) {
-			for (int c = 0; c < COLS; c++) {
+		for (int r = 0; r < rows; r++) {
+			for (int c = 0; c < cols; c++) {
 				switch (grid[r][c]) {
 					case 0:
 						System.out.print(".");
