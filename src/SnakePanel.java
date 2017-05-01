@@ -153,6 +153,7 @@ public class SnakePanel extends JPanel {
 	public void snakeDidDie() {
 		snakeDidDie = true;
 		mouseListenerActive = true;
+		points = 0;
 		repaint();
 	}
 
@@ -194,7 +195,6 @@ public class SnakePanel extends JPanel {
 		g2.setColor(Color.WHITE);
 		g2.drawString("Points: " + points, panelDimension.width - 250, 30);
 		g2.setColor(Color.BLACK);
-
 	}
 
 	private void drawGrid(Graphics2D g2) {
@@ -211,13 +211,13 @@ public class SnakePanel extends JPanel {
 
 	private void drawSquares(Graphics2D g2) {
 		if (snakeParts.size() == 0 || snakeParts == null) { return; }
-		for (Coordinate c : snakeParts) {
-			g2.setColor(new Color(56, 142, 60));
-			g2.fillRect(c.col() * SQUARE_SIZE + LINE_THICKNESS, c.row() * SQUARE_SIZE + LINE_THICKNESS, SQUARE_SIZE - LINE_THICKNESS, SQUARE_SIZE - LINE_THICKNESS);
-			g2.setColor(Color.BLACK);		
-		}
 		g2.setColor(new Color(255, 152, 0));
 		g2.fillRect(foodLoc.col() * SQUARE_SIZE + LINE_THICKNESS, foodLoc.row() * SQUARE_SIZE + LINE_THICKNESS, SQUARE_SIZE - LINE_THICKNESS, SQUARE_SIZE - LINE_THICKNESS);		
+		g2.setColor(new Color(56, 142, 60));
+		for (Coordinate c : snakeParts) {
+			g2.fillRect(c.col() * SQUARE_SIZE + LINE_THICKNESS, c.row() * SQUARE_SIZE + LINE_THICKNESS, SQUARE_SIZE - LINE_THICKNESS, SQUARE_SIZE - LINE_THICKNESS);		
+		}
+		g2.setColor(Color.BLACK);
 	}
 
 }
